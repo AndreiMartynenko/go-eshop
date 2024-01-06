@@ -15,8 +15,8 @@ const (
 
 func main() {
 	grpcServer := grpc.NewServer()
-	//orderService := UnimplementedOrderServiceServer{}
-	orderService := &OrderServiceImpl{}
+	orderService := proto.UnimplementedOrderServiceServer{}
+	//orderService := &OrderServiceImpl{}
 	proto.RegisterOrderServiceServer(grpcServer, &orderService)
 
 	lis, err := net.Listen("tcp", ":"+grpcPort)
