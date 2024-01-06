@@ -8,4 +8,7 @@ const (
 
 func main() {
 	grpcServer := grpc.NewServer()
+	orderService := UnimplementedOrderServiceServer{}
+	RegisterOrderServiceServer(grpcServer, &orderService)
+
 }
