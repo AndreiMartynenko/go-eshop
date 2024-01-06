@@ -10,11 +10,13 @@ import (
 
 const (
 	grpcPort = "50051"
+	restPort = "8080"
 )
 
 func main() {
 	grpcServer := grpc.NewServer()
-	orderService := UnimplementedOrderServiceServer{}
+	//orderService := UnimplementedOrderServiceServer{}
+	orderService := &OrderServiceImpl{}
 	proto.RegisterOrderServiceServer(grpcServer, &orderService)
 
 	lis, err := net.Listen("tcp", ":"+grpcPort)
