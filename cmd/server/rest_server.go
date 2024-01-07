@@ -8,7 +8,6 @@ type RestServer struct {
 	orderService OrderServiceServer // The same order service as in the gRPC server
 }
 
-
 // The NewRestServer function is perfect for creating a RestServer
 func NewRestServer(orderService OrderServiceServer, port string) RestServer {
 	rs := RestServer{
@@ -18,3 +17,18 @@ func NewRestServer(orderService OrderServiceServer, port string) RestServer {
 		},
 		orderService: orderService,
 	}
+
+	// Route registration
+	router.POST("/order", rs.create)
+	router.GET("/order/:id", rs.retrieve)
+	router.PUT("/order", rs.update)
+	router.DELETE("/order", rs.delete)
+	router.GET("/order", rs.list)
+
+	return rs
+}
+
+// Start launches the server
+func (r RestServer) Start() error {
+	return r.server.ListenAndServe()
+}
