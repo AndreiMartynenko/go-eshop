@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/golang/protobuf/jsonpb"
+)
 
 // RestServer implements a REST server for the order service
 type RestServer struct {
@@ -42,3 +46,14 @@ func (r RestServer) create(c *gin.Context) {
 	if err != nil {
 		c.String(http.StatusInternalServerError, "error creating order request")
 	}
+
+	// Uses the order service to create an order from the request
+	resp, err := r.orderService.Create(c.Request.Context(), &req)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "error creating order")
+	}
+	m := &jsonpb.Marshaler{}
+	if err := m.Marshal(c.Writer, resp); err != nil {
+		c.String(http.StatusInternalServerError, "error sending order response")
+	}
+}
