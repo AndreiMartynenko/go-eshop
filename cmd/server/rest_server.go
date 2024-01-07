@@ -57,3 +57,19 @@ func (r RestServer) create(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "error sending order response")
 	}
 }
+
+func (r RestServer) retrieve(c *gin.Context) {
+	c.String(http.StatusNotImplemented, "not implemented yet")
+}
+
+func (r RestServer) update(c *gin.Context) {
+	c.String(http.StatusNotImplemented, "not implemented yet")
+}
+
+func (r RestServer) delete(c *gin.Context) {
+	c.String(http.StatusNotImplemented, "not implemented yet")
+}
+
+func (r RestServer) list(c *gin.Context) {
+	c.String(http.StatusNotImplemented, "not implemented yet")
+}
