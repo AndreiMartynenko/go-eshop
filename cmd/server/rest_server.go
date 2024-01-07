@@ -3,17 +3,21 @@ package main
 import (
 	"net/http"
 
+	"github.com/AndreiMartynenko/grpc-eshop/proto"
+	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/jsonpb"
 )
 
 // RestServer implements a REST server for the order service
 type RestServer struct {
 	server       *http.Server
-	orderService OrderServiceServer // The same order service as in the gRPC server
+	orderService proto.OrderServiceServer // The same order service as in the gRPC server
 }
 
+var router = gin.Default() // Declare a global router
+
 // The NewRestServer function is perfect for creating a RestServer
-func NewRestServer(orderService OrderServiceServer, port string) RestServer {
+func NewRestServer(orderService proto.OrderServiceServer, port string) RestServer {
 	rs := RestServer{
 		server: &http.Server{
 			Addr:    ":" + port,
@@ -39,7 +43,7 @@ func (r RestServer) Start() error {
 
 // The create handler function creates an order from the request (JSON body)
 func (r RestServer) create(c *gin.Context) {
-	var req CreateOrderRequest
+	var req proto.CreateOrderRequest
 
 	// Request deserialization
 	err := jsonpb.Unmarshal(c.Request.Body, &req)
