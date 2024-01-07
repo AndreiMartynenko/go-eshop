@@ -31,12 +31,24 @@ func main() {
 	}
 	// Serve gRPC requests in a separate goroutine
 	go func() {
-		// Serve()
-		err := grpcServer.Serve(lis)
+		// Serve() is a blocking call, so we put it in a goroutine.
+
+		grpcServer.Serve(lis)
 		if err != nil {
 			log.Fatalf("failed to serve gRPC: %v", err)
 		}
 
 	}()
+
+	// Create a new REST server using the OrderServiceServer
+	restServer := NewRestServer(orderService, restPort)
+
+	// Start() is also a blocking call, but for now, we can leave it
+	// to prevent an abrupt exit of main(). Below, we will refactor this logic!
+	// Start the REST server (blocking call)
+	err = restServer.Start()
+	if err != nil {
+		log.Fatalf("failed to start REST server: %v", err)
+	}
 
 }
