@@ -44,7 +44,7 @@ func main() {
 	restServer := NewRestServer(orderService, restPort)
 
 	// Start() is also a blocking call, but for now, we can leave it
-	// to prevent an abrupt exit of main(). Below, we will refactor this logic!
+	// to prevent an abrupt(sudden and unexpected) exit of main(). Below, we will refactor this logic!
 	// Start the REST server (blocking call)
 	err = restServer.Start()
 	if err != nil {
