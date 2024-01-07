@@ -32,3 +32,13 @@ func NewRestServer(orderService OrderServiceServer, port string) RestServer {
 func (r RestServer) Start() error {
 	return r.server.ListenAndServe()
 }
+
+// The create handler function creates an order from the request (JSON body)
+func (r RestServer) create(c *gin.Context) {
+	var req CreateOrderRequest
+
+	// Request deserialization
+	err := jsonpb.Unmarshal(c.Request.Body, &req)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "error creating order request")
+	}
