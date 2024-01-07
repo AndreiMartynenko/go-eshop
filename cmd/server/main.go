@@ -14,9 +14,12 @@ const (
 )
 
 func main() {
+	// Create a new gRPC server
 	grpcServer := grpc.NewServer()
+	// Create an instance of the OrderServiceServer implementation
 	orderService := proto.UnimplementedOrderServiceServer{}
 	//orderService := &OrderServiceImpl{}
+	// Register the OrderServiceServer with the gRPC server
 	proto.RegisterOrderServiceServer(grpcServer, &orderService)
 
 	lis, err := net.Listen("tcp", ":"+grpcPort)
@@ -26,5 +29,10 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to start gRPC server: %v", err)
 	}
+
+	go func() {
+		// Serve()
+
+	}()
 
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/AndreiMartynenko/grpc-eshop/proto"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // RestServer implements a REST server for the order service
@@ -46,9 +47,10 @@ func (r RestServer) create(c *gin.Context) {
 	var req proto.CreateOrderRequest
 
 	// Request deserialization
-	err := jsonpb.Unmarshal(c.Request.Body, &req)
+	err := protojson.Unmarshal(c.Request.Body, &req)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "error creating order request")
+		return
 	}
 
 	// Uses the order service to create an order from the request
