@@ -6,7 +6,6 @@ import (
 
 	"github.com/AndreiMartynenko/grpc-eshop/proto"
 	"github.com/gin-gonic/gin"
-	"github.com/golang/protobuf/jsonpb"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -69,9 +68,12 @@ func (r RestServer) create(c *gin.Context) {
 		return
 	}
 	// Marshal the response to JSON
-	m := &jsonpb.Marshaler{}
-	if err := m.Marshal(c.Writer, resp); err != nil {
+	//m := &protojsonpb.MarshalOptions{}
+	m := &protojson.MarshalOptions{}
+	if data, err := m.Marshal(resp); err != nil {
 		c.String(http.StatusInternalServerError, "error sending order response")
+	} else {
+		c.Data(http.StatusOK, "application/json", data)
 	}
 }
 
