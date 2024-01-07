@@ -46,6 +46,11 @@ func (r RestServer) Start() error {
 func (r RestServer) create(c *gin.Context) {
 	var req proto.CreateOrderRequest
 
+	/*
+		In this version, io.ReadAll is used to read the entire content
+		of c.Request.Body into a []byte, which can then be passed to protojson.Unmarshal.
+	*/
+
 	// Read the content of the request body into a []byte
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
