@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/AndreiMartynenko/grpc-eshop/proto"
@@ -46,8 +47,16 @@ func (r RestServer) Start() error {
 func (r RestServer) create(c *gin.Context) {
 	var req proto.CreateOrderRequest
 
+	// Read the content of the request body into a []byte
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "error reading request body")
+		return
+	}
+
 	// Request deserialization
-	err := protojson.Unmarshal(c.Request.Body, &req)
+	// err := protojson.Unmarshal(c.Request.Body, &req)
+	err = protojson.Unmarshal(body, &req)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "error creating order request")
 		return
@@ -57,7 +66,9 @@ func (r RestServer) create(c *gin.Context) {
 	resp, err := r.orderService.Create(c.Request.Context(), &req)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "error creating order")
+		return
 	}
+	// Marshal the response to JSON
 	m := &jsonpb.Marshaler{}
 	if err := m.Marshal(c.Writer, resp); err != nil {
 		c.String(http.StatusInternalServerError, "error sending order response")
