@@ -10,9 +10,13 @@ import (
 )
 
 // RestServer implements a REST server for the order service
+
+// optimize REST and gRPC servers for background processing and error propagation through channels.
+
 type RestServer struct {
 	server       *http.Server
 	orderService proto.OrderServiceServer // The same order service as in the gRPC server
+	errCh        chan error               // Optimization
 }
 
 var router = gin.Default() // Declare a global router
@@ -25,6 +29,7 @@ func NewRestServer(orderService proto.OrderServiceServer, port string) RestServe
 			Handler: router,
 		},
 		orderService: orderService,
+		errCh:        make(chan error), // Optimiztion
 	}
 
 	// Route registration
@@ -37,9 +42,28 @@ func NewRestServer(orderService proto.OrderServiceServer, port string) RestServe
 	return rs
 }
 
+/*
 // Start launches the server
 func (r RestServer) Start() error {
 	return r.server.ListenAndServe()
+}
+*/
+
+// Optimization. Start launches the REST server in the background, sending errors to the error channel
+func (r RestServer) Start() {
+	go func() {
+		r.errCh <- r.server.ListenAndServe()
+	}()
+}
+
+// Optimization. Stop stops the server
+func (r RestServer) Stop() error {
+	return r.server.Close()
+}
+
+// Optimization. Error returns the server's error channel
+func (r RestServer) Error() chan error {
+	return r.errCh
 }
 
 // The create handler function creates an order from the request (JSON body)
