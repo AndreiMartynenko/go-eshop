@@ -1,4 +1,4 @@
-package main
+package orders
 
 import (
 	"io"
@@ -29,7 +29,7 @@ func NewRestServer(orderService proto.OrderServiceServer, port string) RestServe
 			Handler: router,
 		},
 		orderService: orderService,
-		errCh:        make(chan error), // Optimiztion
+		errCh:        make(chan error), // Optimization
 	}
 
 	// Route registration

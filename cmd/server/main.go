@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 
+	"github.com/AndreiMartynenko/grpc-eshop/pkg/orders"
 	"github.com/AndreiMartynenko/grpc-eshop/proto"
 	"google.golang.org/grpc"
 )
@@ -41,13 +42,25 @@ func main() {
 	}()
 
 	// Create a new REST server using the OrderServiceServer
-	restServer := NewRestServer(orderService, restPort)
+	restServer := orders.NewRestServer(orderService, restPort)
 
 	// Start() is also a blocking call, but for now, we can leave it
 	// to prevent an abrupt(sudden and unexpected) exit of main(). Below, we will refactor this logic!
 	// Start the REST server (blocking call)
-	err = restServer.Start()
-	if err != nil {
+	/*
+	   	err = restServer.Start()
+	   	if err != nil {
+	   		log.Fatalf("failed to start REST server: %v", err)
+	   	}
+
+	   }
+	*/
+
+	// Assuming RestServer's Start method sends errors through the errCh channel
+	go restServer.Start()
+
+	// Wait for an error from the channel
+	if err := <-restServer.Error(); err != nil {
 		log.Fatalf("failed to start REST server: %v", err)
 	}
 
