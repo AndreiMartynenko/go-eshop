@@ -16,7 +16,7 @@ import (
 type RestServer struct {
 	server       *http.Server
 	orderService proto.OrderServiceServer // The same order service as in the gRPC server
-	errCh        chan error               // Optimization
+	errCh        chan error               // Optimization. Adding channel
 }
 
 var router = gin.Default() // Declare a global router
