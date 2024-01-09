@@ -2,11 +2,12 @@ package main
 
 import (
 	"log"
-	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/AndreiMartynenko/grpc-eshop/pkg/orders"
 	"github.com/AndreiMartynenko/grpc-eshop/proto"
-	"google.golang.org/grpc"
 )
 
 const (
@@ -14,54 +15,71 @@ const (
 	restPort = "8080"
 )
 
-func main() {
-	// Create a new gRPC server
-	grpcServer := grpc.NewServer()
-	// Create an instance of the OrderServiceServer implementation
+// The app wrapper is perfect for all elements needed to start
+// and stop the Order microservice
+type app struct {
+	restServer orders.RestServer
+	grpcServer orders.GrpcServer
+	//Listens for an application termination signal
+	//Ex. (Ctrl X, Docker container shutdown, etc)
+	shutdownCh chan os.Signal
+}
+
+// start launches the REST and gRPC servers in the background
+func (a app) start() {
+	go a.restServer.Start() // non-blocking now
+	go a.grpcServer.Start() // also non-blocking :-)
+}
+
+// stop stops the servers
+func (a app) shutdown() error {
+	a.grpcServer.Stop()
+	return a.restServer.Stop()
+}
+
+// newApp creates a new application with REST and gRPC servers
+// This function performs all necessary application initialization
+func newApp() (app, error) {
 	orderService := proto.UnimplementedOrderServiceServer{}
-	//orderService := &OrderServiceImpl{}
-	// Register the OrderServiceServer with the gRPC server
-	proto.RegisterOrderServiceServer(grpcServer, &orderService)
-	// Listen for gRPC requests on the specified port
-	lis, err := net.Listen("tcp", ":"+grpcPort)
+
+	gs, err := orders.NewGrpcServer(orderService, grpcPort)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to start gRPC server: %v", err)
-	}
-	// Serve gRPC requests in a separate goroutine
-	go func() {
-		// Serve() is a blocking call, so we put it in a goroutine.
-
-		grpcServer.Serve(lis)
-		if err != nil {
-			log.Fatalf("failed to serve gRPC: %v", err)
-		}
-
-	}()
-
-	// Create a new REST server using the OrderServiceServer
-	restServer := orders.NewRestServer(orderService, restPort)
-
-	// Start() is also a blocking call, but for now, we can leave it
-	// to prevent an abrupt(sudden and unexpected) exit of main(). Below, we will refactor this logic!
-	// Start the REST server (blocking call)
-	/*
-	   	err = restServer.Start()
-	   	if err != nil {
-	   		log.Fatalf("failed to start REST server: %v", err)
-	   	}
-
-	   }
-	*/
-
-	// Assuming RestServer's Start method sends errors through the errCh channel
-	go restServer.Start()
-
-	// Wait for an error from the channel
-	if err := <-restServer.Error(); err != nil {
-		log.Fatalf("failed to start REST server: %v", err)
+		return app{}, err
 	}
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	return app{
+		restServer: orders.NewRestServer(orderService, restPort),
+		grpcServer: gs,
+		shutdownCh: quit,
+	}, nil
+}
+
+// run starts the application, handling any errors from REST and gRPC servers
+// and shutdown signals
+func run() error {
+	app, err := newApp()
+	if err != nil {
+		return err
+	}
+
+	app.start()
+	defer app.shutdown()
+
+	select {
+	case restErr := <-app.restServer.Error():
+		return restErr
+	case grpcErr := <-app.grpcServer.Error():
+		return grpcErr
+	case <-app.shutdownCh:
+		return nil
+	}
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
