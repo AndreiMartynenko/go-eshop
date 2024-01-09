@@ -1,5 +1,12 @@
 package main
 
+/*
+Below is an optimized version of the main function that creates
+the application structure, uses select to listen for errors from
+the REST and gRPC servers, and handles startup and shutdown,
+including OS shutdown signals.
+*/
+
 import (
 	"log"
 	"os"
