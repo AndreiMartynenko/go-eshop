@@ -46,7 +46,7 @@ func checkInventory(ctx context.Context, items []*proto.Item) (bool, error) {
 }
 
 // getOrderTotal calculates the total order amount
-func getOrderTotal(items []*Item) float32 {
+func getOrderTotal(items []*proto.Item) float32 {
 	var total float32
 
 	for _, item := range items {
