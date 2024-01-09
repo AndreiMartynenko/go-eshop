@@ -33,9 +33,18 @@ func preAuthorizePayment(ctx context.Context, payment *PaymentMethod, orderAmoun
 // whether all items are in stock. (true, nil) is returned if
 // all items are in stock, and no errors occurred
 func checkInventory(ctx context.Context, items []*Item) (bool, error) {
-	// Your inventory checking logic
+	// Costly inventory logic is performed here - for this example, we use sleep mode :-)
+	timer := time.NewTimer(2 * time.Second)
+
+	select {
+	case <-timer.C:
+		return true, nil
+	case <-ctx.Done():
+		return false, ErrInventoryRequestTimeout
+	}
 }
 
+// getOrderTotal calculates the total order amount
 func getOrderTotal(items []*Item) float32 {
 	// Your logic to calculate order total
 }
