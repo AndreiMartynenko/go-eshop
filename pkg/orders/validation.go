@@ -3,6 +3,7 @@ package orders
 import (
 	"context"
 	"errors"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -14,7 +15,16 @@ var (
 )
 
 func preAuthorizePayment(ctx context.Context, payment *PaymentMethod, orderAmount float32) error {
-	// Your pre-authorization logic
+	// Costly authorization logic is performed here - for this example, we use sleep mode :-)
+	// and return nil to indicate successful authorization
+	timer := time.NewTimer(3 * time.Second)
+
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ErrPreAuthorizationTimeout
+	}
 }
 
 func checkInventory(ctx context.Context, items []*Item) (bool, error) {
