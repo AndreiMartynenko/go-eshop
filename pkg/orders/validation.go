@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/AndreiMartynenko/grpc-eshop/proto"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -16,7 +17,7 @@ var (
 
 // preAuthorizePayment performs pre-authorization of the payment method
 // and returns an error. nil is returned for successful pre-authorization
-func preAuthorizePayment(ctx context.Context, payment *PaymentMethod, orderAmount float32) error {
+func preAuthorizePayment(ctx context.Context, payment *proto.PaymentMethod, orderAmount float32) error {
 	// Costly authorization logic is performed here - for this example, we use sleep mode :-)
 	// and return nil to indicate successful authorization
 	timer := time.NewTimer(3 * time.Second)
@@ -32,7 +33,7 @@ func preAuthorizePayment(ctx context.Context, payment *PaymentMethod, orderAmoun
 // checkInventory returns a boolean value and an error indicating
 // whether all items are in stock. (true, nil) is returned if
 // all items are in stock, and no errors occurred
-func checkInventory(ctx context.Context, items []*Item) (bool, error) {
+func checkInventory(ctx context.Context, items []*proto.Item) (bool, error) {
 	// Costly inventory logic is performed here - for this example, we use sleep mode :-)
 	timer := time.NewTimer(2 * time.Second)
 
@@ -55,7 +56,7 @@ func getOrderTotal(items []*Item) float32 {
 	return total
 }
 
-func validateOrder(ctx context.Context, items []*Item, payment *PaymentMethod) error {
+func validateOrder(ctx context.Context, items []*proto.Item, payment *proto.PaymentMethod) error {
 	g, errCtx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
