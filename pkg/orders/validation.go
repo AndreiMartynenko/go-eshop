@@ -14,6 +14,8 @@ var (
 	ErrItemOutOfStock          = errors.New("sorry, one or more items in your order is out of stock")
 )
 
+// preAuthorizePayment performs pre-authorization of the payment method
+// and returns an error. nil is returned for successful pre-authorization
 func preAuthorizePayment(ctx context.Context, payment *PaymentMethod, orderAmount float32) error {
 	// Costly authorization logic is performed here - for this example, we use sleep mode :-)
 	// and return nil to indicate successful authorization
@@ -27,6 +29,9 @@ func preAuthorizePayment(ctx context.Context, payment *PaymentMethod, orderAmoun
 	}
 }
 
+// checkInventory returns a boolean value and an error indicating
+// whether all items are in stock. (true, nil) is returned if
+// all items are in stock, and no errors occurred
 func checkInventory(ctx context.Context, items []*Item) (bool, error) {
 	// Your inventory checking logic
 }
