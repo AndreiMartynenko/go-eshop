@@ -46,7 +46,13 @@ func checkInventory(ctx context.Context, items []*Item) (bool, error) {
 
 // getOrderTotal calculates the total order amount
 func getOrderTotal(items []*Item) float32 {
-	// Your logic to calculate order total
+	var total float32
+
+	for _, item := range items {
+		total += item.Price
+	}
+
+	return total
 }
 
 func validateOrder(ctx context.Context, items []*Item, payment *PaymentMethod) error {
