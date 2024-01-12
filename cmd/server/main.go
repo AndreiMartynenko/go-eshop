@@ -155,5 +155,16 @@ func main() {
 	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "4K Monitor", Price: 159.99}}})
 	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Inkjet Printer", Price: 79.99}}})
 
-	time.Sleep(
+	time.Sleep(5 * time.Second) // just for testing
 
+	// Continue submitting orders or perform any other operations
+	// before the main function exits.
+	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Mouse", Price: 14.99}}})
+	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Keyboard", Price: 29.99}}})
+
+	// Let the program run for a while to process the additional orders
+	time.Sleep(5 * time.Second)
+
+	// After processing, you can shut down the dispatcher
+	dispatcher.Shutdown()
+}
