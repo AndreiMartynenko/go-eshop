@@ -84,20 +84,20 @@ func run() error {
 // OrderDispatcher is a daemon process that creates a set of handlers using sync.WaitGroup to concurrently
 // process and dispatch orders
 type OrderDispatcher struct {
-	ordersCh   chan *orders.Order
+	ordersCh   chan *proto.Order
 	orderLimit int // maximum number of orders the pool will process concurrently
 }
 
 // NewOrderDispatcher creates a new OrderDispatcher
 func NewOrderDispatcher(orderLimit int, bufferSize int) OrderDispatcher {
 	return OrderDispatcher{
-		ordersCh:   make(chan *orders.Order, bufferSize),
+		ordersCh:   make(chan *proto.Order, bufferSize),
 		orderLimit: orderLimit,
 	}
 }
 
 // SubmitOrder submits an order for processing
-func (d OrderDispatcher) SubmitOrder(order *orders.Order) {
+func (d OrderDispatcher) SubmitOrder(order *proto.Order) {
 	go func() {
 		d.ordersCh <- order
 	}()
@@ -127,7 +127,7 @@ func (d OrderDispatcher) processOrders() {
 		limiter <- struct{}{}
 		wg.Add(1)
 
-		go func(order *orders.Order) {
+		go func(order *proto.Order) {
 			// What needs to be done: start the fulfillment process to pack and ship the order
 			// Currently using a sleep and print for demonstration
 			time.Sleep(50 * time.Millisecond)
@@ -148,19 +148,19 @@ func main() {
 	dispatcher.Start()
 	defer dispatcher.Shutdown()
 
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "iPhone Screen Protector", Price: 9.99}}})
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "iPhone Case", Price: 19.99}}})
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Pixel Case", Price: 14.99}}})
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Bluetooth Speaker", Price: 29.99}}})
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "4K Monitor", Price: 159.99}}})
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Inkjet Printer", Price: 79.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "iPhone Screen Protector", Price: 9.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "iPhone Case", Price: 19.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "Pixel Case", Price: 14.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "Bluetooth Speaker", Price: 29.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "4K Monitor", Price: 159.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "Inkjet Printer", Price: 79.99}}})
 
 	time.Sleep(5 * time.Second) // just for testing
 
 	// Continue submitting orders or perform any other operations
 	// before the main function exits.
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Mouse", Price: 14.99}}})
-	dispatcher.SubmitOrder(&orders.Order{Items: []*orders.Item{{Description: "Keyboard", Price: 29.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "Mouse", Price: 14.99}}})
+	dispatcher.SubmitOrder(&proto.Order{Items: []*proto.Item{{Description: "Keyboard", Price: 29.99}}})
 
 	// Let the program run for a while to process the additional orders
 	time.Sleep(5 * time.Second)
